@@ -34,6 +34,8 @@ type WSSClient struct {
 	shouldQuit chan struct{}
 	retry      chan string
 	done       chan struct{}
+
+	events []Event
 }
 
 // NewWSSClient 创建一个新的Websocket client
@@ -55,6 +57,11 @@ func NewWSSClient(config *config.Config) *WSSClient {
 // SetLogger 设置日志器
 func (c *WSSClient) SetLogger(logger core.Logger) {
 	c.logger = logger
+}
+
+// Subscribe 订阅
+func (c *WSSClient) Subscribe(events []Event) {
+	c.events = events
 }
 
 // QuerySpot 负责订阅现货行情数据
@@ -95,7 +102,7 @@ func (c *WSSClient) logln(level core.Level, v ...interface{}) {
 }
 
 func (c *WSSClient) subscribeSpot(conn *websocket.Conn) error {
-	for _, v := range events {
+	for _, v := range c.events {
 		err := conn.WriteJSON(v)
 		if err != nil {
 			return err
