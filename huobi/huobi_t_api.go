@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"github.com/blockcdn-go/exchange-sdk-go/global"
-	"gitlab.mybcdn.com/golang/blockcoin/apidb"
+	//"gitlab.mybcdn.com/golang/blockcoin/apidb"
 )
 
 // GetFund 查询指定账户的余额
@@ -70,47 +69,47 @@ func (c *Client) GetFund(req global.FundReq) ([]global.Fund, error) {
 
 // InsertOrder 下单
 // @return string: orderNo
-func (c *Client) InsertOrder(req global.InsertReq) (global.InsertRsp, error) {
-	ids, e := c.GetAllAccountID()
-	if e != nil {
-		return global.InsertRsp{}, e
-	}
-	if len(ids) == 0 {
-		return global.InsertRsp{}, errors.New("huobipro no accountid")
-	}
+// func (c *Client) InsertOrder(req global.InsertReq) (global.InsertRsp, error) {
+// 	ids, e := c.GetAllAccountID()
+// 	if e != nil {
+// 		return global.InsertRsp{}, e
+// 	}
+// 	if len(ids) == 0 {
+// 		return global.InsertRsp{}, errors.New("huobipro no accountid")
+// 	}
 
-	ireq := InsertOrderReq{
-		Source:    "api",
-		AccountID: strconv.FormatInt(ids[0].AccountID, 10),
-		Price:     strconv.FormatFloat(req.Price, 'f', -1, 64),
-		Amount:    strconv.FormatFloat(req.Num, 'f', -1, 64),
-		Symbol:    strings.ToLower(req.Base + req.Quote),
-	}
-	sd := "buy"
-	st := "limit"
-	if apidb.OrderDirection(req.Direction) == apidb.SELL {
-		sd = "sell"
-	}
-	if apidb.OrderType(req.Type) == apidb.MARKET {
-		st = "market"
-	}
-	ireq.OrderType = sd + "-" + st
+// 	ireq := InsertOrderReq{
+// 		Source:    "api",
+// 		AccountID: strconv.FormatInt(ids[0].AccountID, 10),
+// 		Price:     strconv.FormatFloat(req.Price, 'f', -1, 64),
+// 		Amount:    strconv.FormatFloat(req.Num, 'f', -1, 64),
+// 		Symbol:    strings.ToLower(req.Base + req.Quote),
+// 	}
+// 	sd := "buy"
+// 	st := "limit"
+// 	if apidb.OrderDirection(req.Direction) == apidb.SELL {
+// 		sd = "sell"
+// 	}
+// 	if apidb.OrderType(req.Type) == apidb.MARKET {
+// 		st = "market"
+// 	}
+// 	ireq.OrderType = sd + "-" + st
 
-	mapParams := if2map(req)
-	r := struct {
-		Status string `json:"status"`
-		Errmsg string `json:"err-msg"`
-		Data   string `json:"data"`
-	}{}
-	e = c.doHTTP("POST", "/v1/hadax/order/orders/place", mapParams, &r)
-	if e != nil {
-		return global.InsertRsp{}, e
-	}
-	if r.Status != "ok" {
-		return global.InsertRsp{}, fmt.Errorf(r.Errmsg)
-	}
-	return global.InsertRsp{OrderNo: r.Data}, nil
-}
+// 	mapParams := if2map(req)
+// 	r := struct {
+// 		Status string `json:"status"`
+// 		Errmsg string `json:"err-msg"`
+// 		Data   string `json:"data"`
+// 	}{}
+// 	e = c.doHTTP("POST", "/v1/hadax/order/orders/place", mapParams, &r)
+// 	if e != nil {
+// 		return global.InsertRsp{}, e
+// 	}
+// 	if r.Status != "ok" {
+// 		return global.InsertRsp{}, fmt.Errorf(r.Errmsg)
+// 	}
+// 	return global.InsertRsp{OrderNo: r.Data}, nil
+// }
 
 // CancelOrder 撤销一个订单请求
 // 注意，返回OK表示撤单请求成功。订单是否撤销成功请调用订单查询接口查询该订单状态
